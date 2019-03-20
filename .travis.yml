@@ -1,0 +1,16 @@
+language: csharp
+solution: link-twins.sln
+
+mono:
+  - latest
+
+before_deploy:
+  - mv Build/Release/link-twins.exe Build/Release/link-twins-$TRAVIS_TAG.exe
+
+deploy:
+  provider: releases
+  api_key: "$DEPLOY_TOKEN"
+  file: "Build/Release/link-twins-$TRAVIS_TAG.exe"
+  skip_cleanup: true
+  on:
+    tags: true
