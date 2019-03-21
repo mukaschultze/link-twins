@@ -5,10 +5,41 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using CodeProject;
+using CommandLine;
 
 namespace LinkTwins {
 
     public static class Program {
+
+        [Verb("restore", HelpText = "Restore all the files that were symlinked.")]
+        class RestoreOptions {
+            [Option('i', "input", Default = "files.hashes", HelpText = "File containing the file paths and hashes.")]
+            public string InputFile { get; set; }
+
+            [Option('s', "source", Default = "./Shared", HelpText = "Where the source files are.")]
+            public string SourceFolder { get; set; }
+        }
+
+        [Verb("link", HelpText = "Symlink all the files (Requires admin privileges).")]
+        class LinkOptions {
+            [Option('i', "input", Default = "files.hashes", HelpText = "File containing the file paths and hashes.")]
+            public string InputFile { get; set; }
+
+            [Option('t', "target", Default = "./Shared", HelpText = "Location to save the shared files")]
+            public string SourceFolder { get; set; }
+        }
+
+        [Verb("enumerate", HelpText = "Enumerates all the files that can be linked.")]
+        class EnumerateOptions {
+            [Option('o', "output", Default = "files.hashes", HelpText = "Where to save the hashes and file paths.")]
+            public string OutputFile { get; set; }
+        }
+
+        [Verb("hash", HelpText = "Generate SHA256 hashes for all the files.")]
+        class HashOptions {
+            [Option('o', "output", Default = "files.hashes", HelpText = "Where to save the hashes and file paths.")]
+            public string OutputFile { get; set; }
+        }
 
         private const string LOG_PATH = @"C:\Users\samue\Desktop\minifier-log.txt";
         private const string TARGET_PATH = @"C:\Unity\Shared\";
@@ -54,7 +85,15 @@ namespace LinkTwins {
             return dic;
         }
 
-        private static void Main(params string[] args) {
+        private static int Main(params string[] args) {
+
+            return Parser.Default.ParseArguments<RestoreOptions, LinkOptions, EnumerateOptions, HashOptions>(args)
+                .MapResult(
+                  (RestoreOptions opts) => { return 0; },
+                  (LinkOptions opts) => { return 0; },
+                  (EnumerateOptions opts) => { return 0; },
+                  (HashOptions opts) => { return 0; },
+                  errs => 1);
 
             var obj = new object();
 
@@ -117,7 +156,7 @@ namespace LinkTwins {
             while (true)
                 Console.ReadKey(true);
 
-            return;
+            return 0;
 
             if (!Directory.Exists(TARGET_PATH))
                 Directory.CreateDirectory(TARGET_PATH);
@@ -139,7 +178,7 @@ namespace LinkTwins {
             while (true)
                 Console.ReadKey(true);
 
-            return;
+            return 0;
 
             if (File.Exists(@"C:\Users\samue\Desktop\minifier-log-exec.txt"))
                 File.Delete(@"C:\Users\samue\Desktop\minifier-log-exec.txt");
